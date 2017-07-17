@@ -10,8 +10,11 @@ import {renderTable} from "./cli/view-helpers";
 import {BlueprintWizard} from "./blueprint-wizard";
 import denodeify = require('denodeify');
 import {diffLines} from "diff";
+import {exec} from "child_process";
 
-
+/**
+ * @internal
+ */
 export interface SummaryItem {
     filename: string;
     summary: string;
@@ -30,6 +33,9 @@ export abstract class Blueprint {
 
     abstract generateChanges(): Change[];
 
+    /**
+     * @internal
+     */
     async apply() {
         const cluster = this.getChangesCluster();
 
@@ -40,6 +46,15 @@ export abstract class Blueprint {
             .reduce((newChange, change) => newChange.then(() => change.apply(NodeHost)), Promise.resolve());
     }
 
+    /**
+     * Executed after changes are applied
+     */
+    async postApply() {
+    }
+
+    /**
+     * @internal
+     */
     getChangesCluster(): ClusterChanges {
         if (!this.changesCluster) {
             this.changesCluster = new ClusterChanges(this.generateChanges());
@@ -47,6 +62,9 @@ export abstract class Blueprint {
         return this.changesCluster;
     }
 
+    /**
+     * Create single new file from provided content
+     */
     createFile(filename: string, content: string): Change {
         if (fs.existsSync(filename)) {
             throw new UserError(`Expected file ${filename} to not exist`);
@@ -54,6 +72,13 @@ export abstract class Blueprint {
         return new InsertChange(filename, 0, content);
     }
 
+    /**
+     * Helper function that handles creating multiple files from templates
+     * @param dir path to directory where templates are stored
+     * @param translationMap tuple with 2 paths, first one is relative to dir and points to template,
+     *   second one points to destination path, in path you can use replacements
+     * @param replacements map placeholders to strings that should replace them in path and file content
+     */
     createFilesFromTemplates(dir: string, translationMap: [string, string][], replacements: { [k: string]: string }): Change[] {
         const regexpList = Object.entries(replacements)
             .map(([token, value]) => [new RegExp(token, 'g'), value]);
@@ -71,6 +96,26 @@ export abstract class Blueprint {
             return this.createFile(dest, rendered);
         });
     }
+
+    /**
+     * This command allows to execute shell commands in provided directory
+     */
+    async executeCommand(cwd: string, cmd: string, timeout: number = 0): Promise<CommandResult> {
+        return new Promise<CommandResult>((resolve, reject) => {
+            exec(cmd, {cwd, timeout}, (err, stdout, stderr) => {
+                if(err) {
+                    reject(err);
+                }else {
+                    resolve({stdout, stderr});
+                }
+            });
+        });
+    }
+}
+
+export interface CommandResult {
+    stdout: string;
+    stderr: string;
 }
 
 export interface BlueprintParameter {
@@ -81,6 +126,9 @@ export interface BlueprintParameter {
     ask?: boolean;
 }
 
+/**
+ * @internal
+ */
 export class ClusterChanges {
     changesByFile: { [k: string]: Change[] } = {};
     otherChanges: Change[] = [];
@@ -104,6 +152,11 @@ export class ClusterChanges {
     }
 }
 
+/**
+ * Create file in memory basing on local file,
+ * Allow to apply changes to existing files without actually changing them
+ * @internal
+ */
 class InMemoryHost implements Host {
     private files: Map<string, string> = new Map();
     private readFile = (denodeify(fs.readFile) as (...args: any[]) => Promise<any>);
@@ -121,7 +174,9 @@ class InMemoryHost implements Host {
         }
     }
 }
-
+/**
+ * @internal
+ */
 export class BlueprintExecutor {
     constructor(private blueprint: Blueprint) {
 
@@ -167,6 +222,7 @@ export class BlueprintExecutor {
         }
         console.log(Chalk.blue(`Applying changes...`));
         await this.blueprint.apply();
+        await this.blueprint.postApply();
         console.log(Chalk.blue(`Completed, have a productive day!`));
     }
 

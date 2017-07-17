@@ -1,8 +1,0 @@
-import {Action} from '@ngrx/store';
-const prefix = '[__feature_name__]';
-
-export class ExampleAction implements Action {
-  type = `${prefix} Example`;
-  payload: void;
-}
-

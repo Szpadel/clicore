@@ -1,5 +1,8 @@
 import * as fs from 'fs';
 
+/**
+ * Generate file content with replaced placeholders
+ */
 export class FileGenerator {
   private content: string;
 

@@ -1,3 +1,6 @@
+/**
+ * @internal
+ */
 export class CliConfig {
     cliName: string;
     cliVersion: string;

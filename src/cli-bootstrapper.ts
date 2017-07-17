@@ -3,7 +3,7 @@ import {Cli} from "./cli/cli";
 import './lib/object-values-entries-polyfill';
 
 export interface Configuration {
-    cliName: string;
+    pkgName: string;
     cliVersion: string;
     cliDescription: string;
     configFilename: string;
@@ -14,7 +14,7 @@ export interface Configuration {
 export class CliBootstrapper {
     constructor(private config: Configuration) {
         const cliConf = CliConfig.getInstance();
-        cliConf.cliName = config.cliName;
+        cliConf.cliName = config.pkgName;
         cliConf.cliVersion = config.cliVersion;
         cliConf.cliDescription = config.cliDescription;
         cliConf.configFilename = config.configFilename;

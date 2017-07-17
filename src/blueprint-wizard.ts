@@ -2,6 +2,9 @@ import {Blueprint, BlueprintParameter} from "./blueprint";
 import * as inquirer from "inquirer";
 import {Question} from "inquirer";
 
+/**
+ * @internal
+ */
 export class BlueprintWizard {
     constructor(private blueprint: Blueprint) {
 

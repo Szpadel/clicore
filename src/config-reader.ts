@@ -1,6 +1,9 @@
 import * as fs from "fs-extra";
 import {CliConfig} from "./cli-config";
 
+/**
+ * Loads config file in json format
+ */
 export class ConfigReader<T extends {}> {
     private config: Partial<T>;
     private static instances: {[k:string]: ConfigReader<any>} = {};

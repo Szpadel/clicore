@@ -4,10 +4,16 @@ import * as fs from "fs-extra";
 import {ConfigReader, CoreConfig} from "./config-reader";
 import {CliConfig} from "./cli-config";
 
+/**
+ * @internal
+ */
 export interface BlueprintMetadata {
     tag?: string;
 }
 
+/**
+ * @internal
+ */
 export class BlueprintDiscovery {
     private blueprints: Blueprint[] = [];
     private blueprintMetadata: WeakMap<Blueprint, BlueprintMetadata> = new WeakMap();

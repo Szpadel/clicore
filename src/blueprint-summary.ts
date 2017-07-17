@@ -4,6 +4,9 @@ import * as ts from "typescript/lib/tsserverlibrary";
 import Err = ts.server.Msg.Err;
 import * as Chalk from "chalk";
 
+/**
+ * @internal
+ */
 export class BlueprintSummary {
     constructor(private blueprint: Blueprint) {
 
