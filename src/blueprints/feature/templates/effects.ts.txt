@@ -1,0 +1,10 @@
+import {Injectable} from '@angular/core';
+import {Actions, Effect} from '@ngrx/effects';
+import 'rxjs/add/operator/filter';
+
+@Injectable()
+export class __feature_class_name__Effects {
+
+  constructor(private actions$: Actions) {
+  }
+}

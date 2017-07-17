@@ -1,0 +1,17 @@
+import {TestFeatureBuilder, TestFeatureResources} from 'logic/testing/test-feature-builder';
+import {__feature_class_name__Feature} from 'logic/__feature_dir__/feature';
+import {fakeAsync} from '@angular/core/testing';
+
+describe('__feature_class_name__Effects', () => {
+
+  let testFeature: TestFeatureResources<__feature_class_name__Feature>;
+
+  beforeEach(() => {
+    testFeature = TestFeatureBuilder.create(__feature_class_name__Feature)
+    .build();
+  });
+
+  xit('please implement me :)', fakeAsync(() => {
+    // TODO: Implement tests
+  }));
+});

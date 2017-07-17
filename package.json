@@ -1,0 +1,44 @@
+{
+  "name": "@szpadel/core-cli",
+  "version": "0.1.0",
+  "description": "Core base to easly build CLI tool",
+  "author": "Piotr Rogowski <piotrekrogowski@gmail.com>",
+  "license": "MIT",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/cli/bin.ts"
+  },
+  "dependencies": {
+    "camelcase": "^4.1.0",
+    "caporal": "https://github.com/Szpadel/Caporal.js",
+    "chalk": "^2.0.1",
+    "decamelize": "^1.2.0",
+    "denodeify": "^1.2.1",
+    "diff": "^3.3.0",
+    "extendable-error": "^0.1.5",
+    "fs-extra": "^3.0.1",
+    "inquirer": "^3.2.0",
+    "ts-node": "^3.2.0",
+    "typescript": "~2.3.1",
+    "uppercamelcase": "^3.0.0"
+  },
+  "devDependencies": {
+    "@angular/cli": "^1.2.1",
+    "@types/camelcase": "^0.0.30",
+    "@types/chalk": "^0.4.31",
+    "@types/decamelize": "^0.0.30",
+    "@types/denodeify": "^1.2.30",
+    "@types/diff": "^3.2.0",
+    "@types/fs-extra": "^3.0.3",
+    "@types/inquirer": "^0.0.35",
+    "@types/jasmine": "^2.5.53",
+    "@types/minimist": "^1.2.0",
+    "@types/node": "^8.0.11",
+    "@types/uppercamelcase": "^0.0.1",
+    "@types/mock-fs": "^3.6.30",
+    "jasmine": "^2.6.0",
+    "mock-fs": "^4.4.1"
+  }
+}
