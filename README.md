@@ -33,6 +33,7 @@ Creating new cli is difficult task and this project is targeted to solve it.
 
 # Roadmap
  * remove dependency for @angular/cli
+ * more tools for managing typescript AST
  * unit tests
  * executing tasks (like build, test, lint)
  * tracking of layout/architecture version

@@ -19,9 +19,9 @@ export class BlueprintDiscovery {
     private blueprintMetadata: WeakMap<Blueprint, BlueprintMetadata> = new WeakMap();
 
     private detectIndexFile(dir: string, file: string) {
-        return fs.existsSync(path.join(dir, `${file}.ts`)) ?
-            path.join(dir, `${file}.ts`) :
-            path.join(dir, `${file}.js`);
+        return fs.existsSync(path.join(dir, `${file}.js`)) ?
+            path.join(dir, `${file}.js`) :
+            path.join(dir, `${file}.ts`);
     }
 
     private loadBlueprints(dirPath: string, tag?: string) {

@@ -1,6 +1,6 @@
 {
   "name": "clicore",
-  "version": "0.1.1",
+  "version": "0.1.5",
   "description": "Core base to easly build CLI tool",
   "author": "Piotr Rogowski <piotrekrogowski@gmail.com>",
   "repository": "https://github.com/Szpadel/clicore",
@@ -12,6 +12,7 @@
     "prepublish": "yarn run build"
   },
   "dependencies": {
+    "@angular/cli": "^1.2.1",
     "camelcase": "^4.1.0",
     "caporal": "https://github.com/Szpadel/Caporal.js#master",
     "chalk": "^2.0.1",
@@ -26,7 +27,6 @@
     "uppercamelcase": "^3.0.0"
   },
   "devDependencies": {
-    "@angular/cli": "^1.2.1",
     "@types/camelcase": "^0.0.30",
     "@types/chalk": "^0.4.31",
     "@types/decamelize": "^0.0.30",
