@@ -3,12 +3,14 @@ import * as path from "path";
 import * as fs from "fs-extra";
 import {ConfigReader, CoreConfig} from "./config-reader";
 import {CliConfig} from "./cli-config";
+import {resolveArray} from "./tools/async-utils";
 
 /**
  * @internal
  */
 export interface BlueprintMetadata {
     tag?: string;
+    isActive: boolean;
 }
 
 /**
@@ -24,11 +26,11 @@ export class BlueprintDiscovery {
             path.join(dir, `${file}.ts`);
     }
 
-    private loadBlueprints(dirPath: string, tag?: string) {
+    private async loadBlueprints(dirPath: string, tag?: string) {
         const blueprints = fs.readdirSync(dirPath);
 
         // load valid blueprints
-        this.blueprints = blueprints
+        this.blueprints = await blueprints
             .map(item => path.join(dirPath, item))
             .filter(loc => fs.statSync(loc).isDirectory())
             .map(dir => this.detectIndexFile(dir, 'index'))
@@ -44,20 +46,25 @@ export class BlueprintDiscovery {
                 return isModule;
             })
             .map((blueprint) => {
-                this.blueprintMetadata.set(blueprint, {
-                    tag
+                return {blueprint, isActive: blueprint.precondition()}
+            })
+            .map(async ({blueprint, isActive}) => {
+                this.blueprintMetadata.set(blueprint as Blueprint, {
+                    tag: tag,
+                    isActive: await isActive
                 });
                 return blueprint;
-            });
+            })
+            .reduce<Promise<Blueprint[]>>(resolveArray, Promise.resolve([]));
     }
 
-    public discovery() {
+    public async discovery() {
         const cliConf = CliConfig.getInstance();
-        this.loadBlueprints(cliConf.blueprintLocation);
+        await this.loadBlueprints(cliConf.blueprintLocation);
 
         const config = ConfigReader.getInstance<CoreConfig>().getConfig();
         if (config.blueprintsDir) {
-            this.loadBlueprints(config.blueprintsDir, 'local');
+            await this.loadBlueprints(config.blueprintsDir, 'local');
         }
     }
 
@@ -80,7 +87,7 @@ export class BlueprintDiscovery {
 
     public getBlueprintMetadata(blueprint: Blueprint): BlueprintMetadata {
         const metadata = this.blueprintMetadata.get(blueprint);
-        if(!metadata) {
+        if (!metadata) {
             throw new Error('Blueprint doesn\'t have metadata assigned!');
         }
         return metadata;

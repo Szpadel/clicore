@@ -4,6 +4,7 @@ import * as Chalk from "chalk";
 import * as inquirer from "inquirer";
 import {BlueprintExecutor} from "../blueprint";
 import {CliConfig} from "../cli-config";
+import {Blueprint} from "../";
 
 const coreVersion = require('../../package.json').version;
 
@@ -11,9 +12,18 @@ export class Cli {
     private blueprintsDiscovery = new BlueprintDiscovery();
 
     constructor(argv: string[]) {
+        const ui = new inquirer.ui.BottomBar();
+
+        ui.updateBottomBar(Chalk.magenta('Evaluating available blueprints...'));
+        this.configure(argv)
+            .then(() => ui.updateBottomBar(''))
+            .then(() => caporal.parse(argv));
+    }
+
+    private async configure(argv: string[]) {
         const cliConf = CliConfig.getInstance();
 
-        this.blueprintsDiscovery.discovery();
+        await this.blueprintsDiscovery.discovery();
 
         const program = caporal
             .bin(cliConf.cliBin)
@@ -25,13 +35,8 @@ export class Cli {
 
         this.blueprintsDiscovery
             .getBlueprints()
-            .forEach((b) => {
-                const tag = [b]
-                    .map(b => this.blueprintsDiscovery.getBlueprintMetadata(b))
-                    .map(m => m.tag)
-                    .filter(tag => !!tag)
-                    .map(tag => Chalk.grey(`[${tag}] `))
-                    .join('');
+            .map((b) => {
+                const tag = this.getBlueprintTags(b);
 
                 const chain = program
                     .command(b.name, `${tag}${b.description}`);
@@ -53,8 +58,6 @@ export class Cli {
                     }, chain)
                     .action((a, o) => this.runBlueprintCmd(b.name, o));
             });
-
-        caporal.parse(argv);
     }
 
     private generateVersion(): string {
@@ -70,27 +73,51 @@ export class Cli {
         return Chalk.blue(`Available blueprints:\n\n`) + blueprints;
     }
 
-    private async runBlueprintCmd(blueprint: string | null, opt: { [k: string]: any }) {
-        if (!blueprint) {
-            blueprint = await this.selectBlueprint();
+    private async runBlueprintCmd(blueprintName: string | null, opt: { [k: string]: any }) {
+        if (!blueprintName) {
+            blueprintName = await this.selectBlueprint();
         }
 
-        [blueprint]
-            .map(b => this.blueprintsDiscovery.getBlueprint(b, true))
-            .map(b => new BlueprintExecutor(b))
-            .forEach(e => e.execute(opt));
+        const blueprint = this.blueprintsDiscovery.getBlueprint(blueprintName, true);
+
+        if(!this.isBlueprintActive(blueprint)) {
+            await this.runBlueprintCmd(null, opt);
+            return;
+        }
+
+        const executor = new BlueprintExecutor(blueprint);
+        await executor.execute(opt);
+    }
+
+    private getBlueprintTags(blueprint: Blueprint): string {
+        const m = this.blueprintsDiscovery.getBlueprintMetadata(blueprint);
+        const tag = !!m.tag ? Chalk.grey(`[${m.tag}] `) : '';
+        const active = !m.isActive ? Chalk.grey(`[unavailable] `) : '';
+        return `${active}${tag}`;
+    }
+
+    private isBlueprintActive(blueprint: Blueprint) {
+        const m = this.blueprintsDiscovery.getBlueprintMetadata(blueprint);
+        return m.isActive;
+    }
+
+    private createBlueprintListItem(b: Blueprint) {
+        const tag = this.getBlueprintTags(b);
+        if(this.isBlueprintActive(b)) {
+            return {
+                name: `${b.name}  ${tag}${Chalk.grey(b.description)}`,
+                value: b.name,
+                short: b.name
+            }
+        }else {
+            return new inquirer.Separator(`${Chalk.grey(b.name)}  ${tag}${Chalk.grey(b.description)}`)
+        }
     }
 
     private async selectBlueprint(): Promise<string> {
         const blueprints = this.blueprintsDiscovery
             .getBlueprints()
-            .map(b => {
-                return {
-                    name: `${b.name}  ${Chalk.grey(b.description)}`,
-                    value: b.name,
-                    short: b.name
-                }
-            });
+            .map(b => this.createBlueprintListItem(b));
 
         const results = await inquirer.prompt([{
             type: 'list',

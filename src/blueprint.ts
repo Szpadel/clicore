@@ -47,6 +47,15 @@ export abstract class Blueprint {
     }
 
     /**
+     * This method determines whether this blueprint can be used
+     * Eg. most of blueprint requires to be executed in existing project
+     * This promise blocks cli startup, therefore is should be quick check
+     */
+    async precondition(): Promise<boolean> {
+        return true;
+    }
+
+    /**
      * Executed after changes are applied
      */
     async postApply() {
