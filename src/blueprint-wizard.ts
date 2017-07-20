@@ -1,6 +1,6 @@
-import {Blueprint, BlueprintParameter} from "./blueprint";
 import * as inquirer from "inquirer";
 import {Question} from "inquirer";
+import {Blueprint, BlueprintParameter} from "./blueprint";
 
 /**
  * @internal
@@ -20,12 +20,24 @@ export class BlueprintWizard {
                         return this.createBoolQuestion(o, options[o.name] as boolean);
                     case 'string':
                         return this.createStringQuestion(o, options[o.name] as string);
+                    case 'enum':
+                        return this.createItemQuestion(o, options[o.name] as string);
                 }
             });
 
         const resp = await inquirer.prompt(questions);
 
         return Object.assign(options, resp);
+    }
+
+    private createItemQuestion(option: BlueprintParameter, def?: string): Question {
+        return {
+            type: 'list',
+            message: option.description,
+            name: option.name,
+            default: def,
+            choices: option.choices,
+        }
     }
 
     private createStringQuestion(option: BlueprintParameter, def?: string): Question {

@@ -1,16 +1,16 @@
-import * as fs from 'fs-extra';
-import {Change, Host, InsertChange, NodeHost} from './lib/ast-tools/change';
-import {UserError, ValidationError} from "./errors";
-import * as path from "path";
-import {FileGenerator} from "./file-generator";
 import * as Chalk from "chalk";
-import {BlueprintSummary} from "./blueprint-summary";
-import * as inquirer from "inquirer";
-import {renderTable} from "./cli/view-helpers";
-import {BlueprintWizard} from "./blueprint-wizard";
-import denodeify = require('denodeify');
-import {diffLines} from "diff";
 import {exec} from "child_process";
+import {diffLines} from "diff";
+import * as fs from "fs-extra";
+import * as inquirer from "inquirer";
+import * as path from "path";
+import {BlueprintSummary} from "./blueprint-summary";
+import {BlueprintWizard} from "./blueprint-wizard";
+import {renderTable} from "./cli/view-helpers";
+import {UserError, ValidationError} from "./errors";
+import {FileGenerator} from "./file-generator";
+import {Change, Host, InsertChange, NodeHost} from "./lib/ast-tools/change";
+import denodeify = require('denodeify');
 
 /**
  * @internal
@@ -129,8 +129,9 @@ export interface CommandResult {
 
 export interface BlueprintParameter {
     name: string;
-    type: 'string' | 'boolean'; //TODO: enum support
+    type: 'string' | 'boolean' | 'enum';
     description: string;
+    choices?: (answers: { [key: string]: any }) => string[];
     require?: boolean;
     ask?: boolean;
 }

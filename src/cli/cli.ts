@@ -1,10 +1,10 @@
-import {BlueprintDiscovery} from "../blueprint-discovery";
-import caporal = require("caporal");
 import * as Chalk from "chalk";
 import * as inquirer from "inquirer";
-import {BlueprintExecutor} from "../blueprint";
-import {CliConfig} from "../cli-config";
 import {Blueprint} from "../";
+import {BlueprintExecutor} from "../blueprint";
+import {BlueprintDiscovery} from "../blueprint-discovery";
+import {CliConfig} from "../cli-config";
+import caporal = require("caporal");
 
 const coreVersion = require('../../package.json').version;
 
@@ -53,12 +53,17 @@ export class Cli {
                             case 'string':
                                 return chain
                                     .option(`--${option.name} <${option.name}>`, option.description, caporal.STRING, undefined, required);
+                            case 'enum':
+                                return chain
+                                    .option(`--${option.name} <${option.name}>`, option.description,
+                                        !!option.choices ? option.choices({}) : undefined, undefined, required);
                         }
 
                     }, chain)
                     .action((a, o) => this.runBlueprintCmd(b.name, o));
             });
     }
+
 
     private generateVersion(): string {
         const cliConf = CliConfig.getInstance();
@@ -80,7 +85,7 @@ export class Cli {
 
         const blueprint = this.blueprintsDiscovery.getBlueprint(blueprintName, true);
 
-        if(!this.isBlueprintActive(blueprint)) {
+        if (!this.isBlueprintActive(blueprint)) {
             await this.runBlueprintCmd(null, opt);
             return;
         }
@@ -103,13 +108,13 @@ export class Cli {
 
     private createBlueprintListItem(b: Blueprint) {
         const tag = this.getBlueprintTags(b);
-        if(this.isBlueprintActive(b)) {
+        if (this.isBlueprintActive(b)) {
             return {
                 name: `${b.name}  ${tag}${Chalk.grey(b.description)}`,
                 value: b.name,
                 short: b.name
             }
-        }else {
+        } else {
             return new inquirer.Separator(`${Chalk.grey(b.name)}  ${tag}${Chalk.grey(b.description)}`)
         }
     }
