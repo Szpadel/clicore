@@ -129,7 +129,7 @@ export interface CommandResult {
 
 export interface BlueprintParameter {
     name: string;
-    type: 'string' | 'boolean' | 'enum';
+    type: 'string' | 'boolean' | 'enum' | 'file' | 'dir';
     description: string;
     choices?: (answers: { [key: string]: any }) => string[];
     require?: boolean;

@@ -57,6 +57,12 @@ export class Cli {
                                 return chain
                                     .option(`--${option.name} <${option.name}>`, option.description,
                                         !!option.choices ? option.choices({}) : undefined, undefined, required);
+                            case 'file':
+                                return chain
+                                    .option(`--${option.name} <${option.name}>`, option.description, caporal.STRING, undefined, required);
+                            case 'dir':
+                                return chain
+                                    .option(`--${option.name} <${option.name}>`, option.description, caporal.STRING, undefined, required);
                         }
 
                     }, chain)
@@ -97,8 +103,7 @@ export class Cli {
     private getBlueprintTags(blueprint: Blueprint): string {
         const m = this.blueprintsDiscovery.getBlueprintMetadata(blueprint);
         const tag = !!m.tag ? Chalk.grey(`[${m.tag}] `) : '';
-        const active = !m.isActive ? Chalk.grey(`[unavailable] `) : '';
-        return `${active}${tag}`;
+        return `${tag}`;
     }
 
     private isBlueprintActive(blueprint: Blueprint) {
@@ -108,14 +113,11 @@ export class Cli {
 
     private createBlueprintListItem(b: Blueprint) {
         const tag = this.getBlueprintTags(b);
-        if (this.isBlueprintActive(b)) {
-            return {
-                name: `${b.name}  ${tag}${Chalk.grey(b.description)}`,
-                value: b.name,
-                short: b.name
-            }
-        } else {
-            return new inquirer.Separator(`${Chalk.grey(b.name)}  ${tag}${Chalk.grey(b.description)}`)
+        return {
+            name: `${b.name}  ${tag}${Chalk.grey(b.description)}`,
+            value: b.name,
+            short: b.name,
+            disabled: !this.isBlueprintActive(b) ? 'unavailable' : undefined
         }
     }
 

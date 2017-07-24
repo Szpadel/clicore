@@ -22,6 +22,7 @@
     "extendable-error": "^0.1.5",
     "fs-extra": "^3.0.1",
     "inquirer": "^3.2.0",
+    "inquirer-autocomplete-prompt": "^0.11.0",
     "ts-node": "^3.2.0",
     "typescript": "~2.3.1",
     "uppercamelcase": "^3.0.0"
