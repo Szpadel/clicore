@@ -1,6 +1,6 @@
 import * as Chalk from "chalk";
 import * as inquirer from "inquirer";
-import {Blueprint} from "../";
+import {Blueprint, parametersSupport} from "../";
 import {BlueprintExecutor} from "../blueprint";
 import {BlueprintDiscovery} from "../blueprint-discovery";
 import {CliConfig} from "../cli-config";
@@ -46,25 +46,17 @@ export class Cli {
                         // if option is required but we can ask for them, we will do it in wizard
                         const required = option.require && !option.ask;
 
-                        switch (option.type) {
-                            case 'boolean':
-                                return chain
-                                    .option(`--${option.name}`, option.description, caporal.BOOL, undefined, required);
-                            case 'string':
-                                return chain
-                                    .option(`--${option.name} <${option.name}>`, option.description, caporal.STRING, undefined, required);
-                            case 'enum':
-                                return chain
-                                    .option(`--${option.name} <${option.name}>`, option.description,
-                                        !!option.choices ? option.choices({}) : undefined, undefined, required);
-                            case 'file':
-                                return chain
-                                    .option(`--${option.name} <${option.name}>`, option.description, caporal.STRING, undefined, required);
-                            case 'dir':
-                                return chain
-                                    .option(`--${option.name} <${option.name}>`, option.description, caporal.STRING, undefined, required);
-                        }
+                        const param = parametersSupport.getParam(option.type);
+                        const conf = param.getCliConfig(option);
 
+                        return chain
+                            .option(
+                                conf.needArgument ? `--${option.name} <${option.name}>` : `--${option.name}`,
+                                option.description,
+                                conf.validator,
+                                undefined,
+                                required
+                            );
                     }, chain)
                     .action((a, o) => this.runBlueprintCmd(b.name, o));
             });

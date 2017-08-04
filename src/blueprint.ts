@@ -10,6 +10,11 @@ import {renderTable} from "./cli/view-helpers";
 import {UserError, ValidationError} from "./errors";
 import {FileGenerator} from "./file-generator";
 import {Change, Host, InsertChange, NodeHost} from "./lib/ast-tools/change";
+import {BooleanParameter} from "./parameters/boolean-parameter";
+import {EnumParameter} from "./parameters/enum-parameter";
+import {DirParameter, FileParameter} from "./parameters/file-parameter";
+import {ParametersSupport} from "./parameters/parameters-support";
+import {StringParameter} from "./parameters/string-parameter";
 import denodeify = require('denodeify');
 
 /**
@@ -126,6 +131,13 @@ export interface CommandResult {
     stdout: string;
     stderr: string;
 }
+
+export const parametersSupport = new ParametersSupport();
+parametersSupport.registerParameter(new StringParameter());
+parametersSupport.registerParameter(new BooleanParameter());
+parametersSupport.registerParameter(new EnumParameter());
+parametersSupport.registerParameter(new FileParameter());
+parametersSupport.registerParameter(new DirParameter());
 
 export interface BlueprintParameter {
     name: string;
